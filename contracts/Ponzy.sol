@@ -11,11 +11,9 @@ contract Ponzy {
         uint index;
         uint amount;
         uint timeDeposited;
-        address owner;
     }
     
     struct Payout {
-        address owner;
         uint depositIndex;
         uint index;
         uint timeout;
@@ -26,11 +24,21 @@ contract Ponzy {
     mapping(address => Payout[]) public userPayouts;
     mapping(address => mapping(uint => uint)) public userDepositPayout;
 
-    function add(uint input, uint timeDeposited) public payable {        
-        Deposit[] storage deposits = userDeposits[msg.sender];
+    function addDeposit(uint timeDeposited) public payable {  
+        require(msg.value > 0);      
 
-        Deposit memory newDeposit = Deposit(deposits.length, input, timeDeposited, msg.sender);
+        Deposit[] storage deposits = userDeposits[msg.sender];
+        Deposit memory newDeposit = Deposit(deposits.length, msg.value, timeDeposited);
         deposits.push(newDeposit);
+    }
+
+    function getDepositAtIndex(uint index) public view returns(uint, uint) {
+        Deposit storage deposit = userDeposits[msg.sender][index];
+        return (deposit.amount, deposit.timeDeposited);
+    }
+
+    function getDepositsCount() public view returns(uint) {
+        return userDeposits[msg.sender].length;
     }
     
     function rquestPayout(uint depositIndex, uint timeoutInMonths) public {
@@ -38,17 +46,26 @@ contract Ponzy {
 
         Deposit[] storage deposits = userDeposits[msg.sender];
         require(deposits.length > depositIndex);
-        assert(existsPayoutForDeposit(depositIndex));
+        assert(!existsPayoutForDeposit(depositIndex));
 
         uint timeout = now + timeoutInMonths * 1 seconds;
         uint payoutPercentage = calculatePayoutPercentage(timeoutInMonths);
-        Payout memory payout = Payout(msg.sender, depositIndex, userPayouts[msg.sender].length, timeout, payoutPercentage);
+        Payout memory payout = Payout(depositIndex, userPayouts[msg.sender].length, timeout, payoutPercentage);
 
         userPayouts[msg.sender].push(payout);
         userDepositPayout[msg.sender][depositIndex] = payout.index;
     }
     
-    function widthraw (uint payoutIndex) public returns(uint) {
+    function getRequestedPayoutAtIndex(uint index) public view returns(uint, uint, uint) {
+        Payout storage payout = userPayouts[msg.sender][index];
+        return (payout.depositIndex, payout.timeout, payout.payoutPercentage);
+    }
+
+    function getRequestedPayoutsCount() public view returns(uint) {
+        return userPayouts[msg.sender].length;
+    }
+
+    function widthraw (uint payoutIndex) public {
         Payout[] storage payouts = userPayouts[msg.sender];
         require(payouts.length > payoutIndex);
 
@@ -59,10 +76,13 @@ contract Ponzy {
         Deposit memory deposit = deposits[payout.depositIndex];
         uint interest = calculateInterest(deposit.amount, deposit.timeDeposited);
 
+        uint amoutToPay = deposit.amount.add(interest).mul(payout.payoutPercentage).div(100);
+        assert(this.balance >= amoutToPay);
+        
         deleteDeposit(deposits, payouts, payout.depositIndex);
         deletePayout(payouts, payoutIndex);
 
-        return deposit.amount.add(interest).mul(payout.payoutPercentage).div(100);
+        msg.sender.transfer(amoutToPay);
     }   
 
     function deleteDeposit(Deposit[] storage deposits, Payout[] storage payouts, uint depositIndex) private {     
