@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/alex687/Decentralized_KTB/issues"
   },
-  "homepage": "https://github.com/alex687/Decentralized_KTB#readme"
+  "homepage": "https://github.com/alex687/Decentralized_KTB#readme",
+  "dependencies": {
+    "zeppelin-solidity": "^1.7.0"
+  }
 }
