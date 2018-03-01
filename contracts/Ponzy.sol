@@ -1,10 +1,14 @@
 pragma solidity ^0.4.18;
 
 //import "github.com/OpenZeppelin/zeppelin-solidity/contracts/math/SafeMath.sol";
+//import "github.com/OpenZeppelin/zeppelin-solidity/contracts/lifecycle/Pausable.sol";
+
 
 import '../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol';
+import '../node_modules/zeppelin-solidity/contracts/lifecycle/Pausable.sol';
 
-contract Ponzy {
+
+contract Ponzy is Pausable {
     using SafeMath for uint;
 
     struct Deposit {
@@ -42,7 +46,7 @@ contract Ponzy {
     }
     
     function rquestPayout(uint depositIndex, uint timeoutInMonths) public {
-       // require(timeoutInMonths <= 5);
+        require(timeoutInMonths <= 5);
 
         Deposit[] storage deposits = userDeposits[msg.sender];
         require(deposits.length > depositIndex);
