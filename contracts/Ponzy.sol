@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 //import "github.com/OpenZeppelin/zeppelin-solidity/contracts/math/SafeMath.sol";
-//import "github.com/OpenZeppelin/zeppelin-solidity/contracts/lifecycle/Pausable.sol";
+//import "github.com/OpenZeppelin/zeppelin-solidity/contracsts/lifecycle/Pausable.sol";
 
 
 import '../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol';
@@ -69,7 +69,7 @@ contract Ponzy is Pausable {
         return userPayouts[msg.sender].length;
     }
 
-    function widthraw (uint payoutIndex) public {
+    function widthraw (uint payoutIndex) public whenNotPaused {
         Payout[] storage payouts = userPayouts[msg.sender];
         require(payouts.length > payoutIndex);
 
