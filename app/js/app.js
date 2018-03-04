@@ -97,13 +97,13 @@ class App {
     
     _loadContract() {
         let contractInstance =  this.client.contract(abi)
-        .at("0xf12b5dd4ead5f743c6baa640b0216200e89b60da");
+        .at("0x345ca3e014aaf5dca488057592ee47305d9b3e10");
 
         this.contract = contractInstance;
     }
 
     async _bindToEvents(){
-        let contract = web3.eth.contract(abi).at("0xf12b5dd4ead5f743c6baa640b0216200e89b60da");
+        let contract = web3.eth.contract(abi).at("0x345ca3e014aaf5dca488057592ee47305d9b3e10");
         let addedDeposit = contract.AddDeposit();
         addedDeposit.watch(async (e, r) => {
             if(!e){

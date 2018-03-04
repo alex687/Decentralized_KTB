@@ -6,9 +6,10 @@ pragma solidity ^0.4.18;
 
 import '../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol';
 import '../node_modules/zeppelin-solidity/contracts/lifecycle/Pausable.sol';
+import './Upgradeable.sol';
 
 
-contract Ponzy is Pausable {
+contract Ponzy is Upgradeable, Pausable {
     using SafeMath for uint;
 
     struct Deposit {
