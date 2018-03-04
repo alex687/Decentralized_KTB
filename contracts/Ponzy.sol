@@ -23,7 +23,11 @@ contract Ponzy is Pausable {
         uint timeout;
         uint payoutPercentage;
     }
-    
+
+    event AddDeposit(address owner, uint index, uint amount, uint timeDeposited);
+    event RequestPayout(address owner, uint index, uint depositIndex, uint timeout, uint payoutPercentage);
+    event Widthraw(address owner, uint payoutIndex);
+
     mapping(address => Deposit[]) public userDeposits;
     mapping(address => Payout[]) public userPayouts;
     mapping(address => mapping(uint => uint)) public userDepositPayout;
@@ -34,6 +38,8 @@ contract Ponzy is Pausable {
         Deposit[] storage deposits = userDeposits[msg.sender];
         Deposit memory newDeposit = Deposit(deposits.length, msg.value, timeDeposited);
         deposits.push(newDeposit);
+        
+        AddDeposit(msg.sender, deposits.length - 1, newDeposit.amount, newDeposit.timeDeposited);
     }
 
     function getDepositAtIndex(uint index) public view returns(uint, uint) {
@@ -58,6 +64,8 @@ contract Ponzy is Pausable {
 
         userPayouts[msg.sender].push(payout);
         userDepositPayout[msg.sender][depositIndex] = payout.index;
+
+        RequestPayout(msg.sender, payout.index, payout.depositIndex, payout.timeout, payout.payoutPercentage);
     }
     
     function getRequestedPayoutAtIndex(uint index) public view returns(uint, uint, uint) {
@@ -87,6 +95,8 @@ contract Ponzy is Pausable {
         deletePayout(payouts, payoutIndex);
 
         msg.sender.transfer(amoutToPay);
+
+        Widthraw(msg.sender, payoutIndex);
     }   
 
     function deleteDeposit(Deposit[] storage deposits, Payout[] storage payouts, uint depositIndex) private {     

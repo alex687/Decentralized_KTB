@@ -1,0 +1,69 @@
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">Deposit ethers</button>
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Deposit:</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="deposit-form">
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="amount" class="col-form-label">Amount:</label>
+                <input type="text" class="form-control" id="amount">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Send message</button>
+        </div>
+    </form>
+    </div>
+  </div>
+</div>
+
+
+<h2>Account deposits</h2>
+
+<div class="row">
+    {{#deposits}}
+        <div class="col-md-3">
+            <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Deposit {{index}}</h5>
+                <p class="card-text">Ammount: {{amount}} ether</p>
+                <p class="card-text">Interest: {{interest}} ether</p>
+                <p class="card-text">Deposited : {{timeDeposited}}</p>
+                
+                {{^payoutExists}}                                  
+                <a onclick="javascript:app.rquestPayout({{index}})" class="btn btn-primary text-white">Request payout</a>                                  
+                {{/payoutExists}}
+            </div>
+            </div>
+        </div>
+
+    {{/deposits}}
+
+</div>
+
+<h2>Account payout requests</h2>
+<div class="row">
+    {{#payouts}}
+        <div class="col-md-3">
+                <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">Payout</h5>
+                    <p class="card-text">Deposit index: {{depositIndex}}</p>
+                    <p class="card-text">Timeout : {{timeout}}</p>                                  
+                    <p class="card-text">Payout percentage :{{payoutPercentage}}</p>        
+                    
+                    {{^payoutExists}}                                  
+                    <a onclick="javascript:app.widthrawMoney({{index}})" class="btn btn-success text-white">Widthraw money</a>                                  
+                    {{/payoutExists}}
+                </div>
+                </div>
+            </div>
+    {{/payouts}}
+    </div>
