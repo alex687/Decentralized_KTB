@@ -15,8 +15,8 @@ contract Upgradeable is Ownable {
     }
 
     function verifyTargetState(address testTarget) private {
-        require(address(delegateGet(testTarget, "target()")) == target);       
         require(address(delegateGet(testTarget, "owner()")) == owner);
+        require(address(delegateGet(testTarget, "target()")) == target);       
     }
 
     function verifyState(address testTarget) internal {
