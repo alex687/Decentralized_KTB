@@ -15,11 +15,17 @@ class App {
         this.contract.addDeposit(1516568303, { from: from, value: value});
     }
 
-    async rquestPayout(depositIndex) {
-        let timeoutInMonths = 5;
-        let from = await this.client.coinbase();
+    async rquestPayout(depositIndex, timeoutInMonths) {
+        if(timeoutInMonths == undefined){
+            $("#payout-deposit-index").val(depositIndex);
+            $("#payout").modal();
+        }
+        else
+        {
+            let from = await this.client.coinbase();
 
-        this.contract.rquestPayout(depositIndex, timeoutInMonths, {from : from})
+            this.contract.rquestPayout(depositIndex, timeoutInMonths, {from : from})
+        }
     }
 
     async widthrawMoney(payoutIndex){
@@ -72,6 +78,26 @@ class App {
                 self.addDeposit(amount);
                 $("#exampleModal").modal('hide');
                 return false;
+            });
+
+
+            $("#payout-form").submit(function(ev){
+                let timeoutInMonths = $("#payout-time").val();
+                let depositIndex = $("#payout-deposit-index").val();                
+                self.rquestPayout(depositIndex, timeoutInMonths);
+                $("#payout").modal('hide');
+                return false;
+            });
+
+            $('#payout-time').slider();
+            $("#payout-time").on("slide", function(slideEvt) {
+                $("#payout-percentage").text(slideEvt.value * 10 + 50);
+                if(slideEvt.value == 0){
+                    $("#payout-timeout").text("Now");
+                }
+                else{
+                    $("#payout-timeout").text("After " + slideEvt.value + " Months");
+                }
             });
         });
     }
