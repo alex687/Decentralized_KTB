@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/alex687/Decentralized_KTB#readme",
   "dependencies": {
+    "truffle-hdwallet-provider": "0.0.3",
     "zeppelin-solidity": "^1.7.0"
   }
 }

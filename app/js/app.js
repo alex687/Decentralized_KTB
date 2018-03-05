@@ -1,5 +1,17 @@
 `strict_mode`
 
+const promisify = (inner) =>
+    new Promise((resolve, reject) =>
+        inner((err, res) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(res);
+            }
+        })
+    );
+    
+
 class App {
     constructor()
     {
@@ -12,7 +24,7 @@ class App {
         let value = Eth.toWei(amount, 'ether');
         let from = await this.client.coinbase();
 
-        this.contract.addDeposit(1516568303, { from: from, value: value});
+        await promisify(a => this.contract.addDeposit(1516568303, { from: from, value: value}, a));
     }
 
     async rquestPayout(depositIndex, timeoutInMonths) {
@@ -24,23 +36,23 @@ class App {
         {
             let from = await this.client.coinbase();
 
-            this.contract.rquestPayout(depositIndex, timeoutInMonths, {from : from})
+            await promisify(a => this.contract.rquestPayout(depositIndex, timeoutInMonths, {from : from}, a));
         }
     }
 
     async widthrawMoney(payoutIndex){
         let from = await this.client.coinbase();
       
-        this.contract.widthraw(payoutIndex, {from : from}).then((t) => this.loadIndexPage());
+        await promisify(a => this.contract.widthraw(payoutIndex, {from : from}, a));
     }
 
     async loadIndexPage(){
-        let payoutsCount = (await this.contract.getRequestedPayoutsCount())[0].toNumber();
+        let payoutsCount = (await promisify(a => this.contract.getRequestedPayoutsCount(a))).toNumber();
         let payouts = [];
-        for(let i=0; i<payoutsCount; i++){
-
-            let payout = await this.contract.getRequestedPayoutAtIndex(i)
+        for(let i=0; i<payoutsCount; i++){           
+            let payout = await promisify(a => this.contract.getRequestedPayoutAtIndex(i, a));
             let timeout = new Date(payout[1].toNumber() * 1000);
+            
             payouts.push({
                  depositIndex : payout[0].toString(),
                  timeout : timeout,
@@ -50,15 +62,14 @@ class App {
              });
         }
 
-     
-       let depositCount =  (await this.contract.getDepositsCount())[0].toNumber();
+       let depositCount =  (await promisify(a => this.contract.getDepositsCount(a))).toNumber();
        let deposits = [];
        for(let i=0; i<depositCount; i++){
-
-           let deposit = await this.contract.getDepositAtIndex(i)
+           let deposit = await promisify(a => this.contract.getDepositAtIndex(i, a));
            let payout = payouts.find(p => p.depositIndex == i);
            let timeDeposited =  new Date(deposit[1].toNumber() * 1000);
            let interest = this._calculateInterest(Eth.fromWei(deposit[0].toString(), 'ether'), timeDeposited);
+
            deposits.push({
                 amount : Eth.fromWei(deposit[0].toString(), 'ether'),
                 timeDeposited : timeDeposited,
@@ -122,14 +133,13 @@ class App {
     }
     
     _loadContract() {
-        let contractInstance =  this.client.contract(abi)
-        .at("0xf12b5dd4ead5f743c6baa640b0216200e89b60da");
+        let contractInstance =  web3.eth.contract(abi).at("0x03fbe06c3688aa6e87311f4a3e73ec9d2288f58d");
 
         this.contract = contractInstance;
     }
 
     async _bindToEvents(){
-        let contract = web3.eth.contract(abi).at("0xf12b5dd4ead5f743c6baa640b0216200e89b60da");
+        let contract = web3.eth.contract(abi).at("0x03fbe06c3688aa6e87311f4a3e73ec9d2288f58d");
         let addedDeposit = contract.AddDeposit();
         addedDeposit.watch(async (e, r) => {
             if(!e){

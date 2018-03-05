@@ -5,9 +5,7 @@ var Ponzy = artifacts.require("./Ponzy.sol");
 var Dispatcher = artifacts.require("./Upgradability/Dispatcher.sol");
 
 module.exports = function(deployer) { 
-  deployer.deploy(Ponzy).then(function() {
-    console.log(Dispatcher);
-
-    return deployer.deploy(Dispatcher, Ponzy.address);
+  deployer.deploy(Ponzy, {gas :  1901396 }).then(function() {
+    return deployer.deploy(Dispatcher, Ponzy.address, {gas: 332753});
   });;  
 };
