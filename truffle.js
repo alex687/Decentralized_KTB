@@ -1,7 +1,7 @@
 var HDWalletProvider = require("truffle-hdwallet-provider");
 
 var infura_apikey = "sIisNdwjyrwk5qdZJaes";
-var mnemonic = "hello system outer female wine under casual above elephant creek guide tooth";
+var mnemonic = "hidden";
 var hdWallet = new HDWalletProvider(mnemonic, "https://ropsten.infura.io/"+infura_apikey, 0);
 
 console.log(hdWallet.address);
