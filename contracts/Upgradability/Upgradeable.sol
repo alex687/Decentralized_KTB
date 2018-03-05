@@ -1,9 +1,9 @@
 pragma solidity ^0.4.18;
 
-import '../node_modules/zeppelin-solidity/contracts/ownership/Ownable.sol';
+import './SharedStorage.sol';
+import '../../node_modules/zeppelin-solidity/contracts/ownership/Ownable.sol';
 
-contract Upgradeable is Ownable {
-    address public target;
+contract Upgradeable is SharedStorage, Ownable {
    
     event EventUpgrade(address target, address admin);
 

@@ -1,9 +1,9 @@
 pragma solidity ^0.4.18;
 
-import '../node_modules/zeppelin-solidity/contracts/ownership/Ownable.sol';
+import './SharedStorage.sol';
+import '../../node_modules/zeppelin-solidity/contracts/ownership/Ownable.sol';
 
-contract Dispatcher is Ownable {
-    address public target;
+contract Dispatcher is SharedStorage, Ownable {
 
     function Dispatcher(address _target) public {
         target = _target;
@@ -11,7 +11,7 @@ contract Dispatcher is Ownable {
 
     function() payable public {
         assembly {
-            let _target := sload(1)
+            let _target := sload(0)
             calldatacopy(0x0, 0x0, calldatasize)
             let retval := delegatecall(gas, _target, 0x0, calldatasize, 0x0, 0)
             let returnsize := returndatasize

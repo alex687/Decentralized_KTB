@@ -1,13 +1,10 @@
 pragma solidity ^0.4.18;
 
-//import "github.com/OpenZeppelin/zeppelin-solidity/contracts/math/SafeMath.sol";
 //import "github.com/OpenZeppelin/zeppelin-solidity/contracsts/lifecycle/Pausable.sol";
-
 
 import '../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol';
 import '../node_modules/zeppelin-solidity/contracts/lifecycle/Pausable.sol';
-import './Upgradeable.sol';
-
+import './Upgradability/Upgradeable.sol';
 
 contract Ponzy is Upgradeable, Pausable {
     using SafeMath for uint;
