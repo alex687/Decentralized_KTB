@@ -31,7 +31,7 @@ class App {
         }
 
         if(this.client == undefined) {
-            this.loadMetamaskNotLoggedIn();
+            this.loadMetamaskNotFound();
         }
     }
 
@@ -130,7 +130,7 @@ class App {
         });
     }
 
-    loadMetamaskNotLoggedIn(){
+    loadMetamaskNotFound(){
         $.get('./templates/metamask_not_found.html', function (template) {
             var output = Mustache.render(template);
             $("#template").html(output);
