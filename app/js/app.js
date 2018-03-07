@@ -16,15 +16,29 @@ class App {
     constructor()
     {
         this._tryAddInjectedWeb3();
-        this._loadContract();
-        this._bindToEvents();
+        if(this.client != undefined) {
+            this._loadContract();
+            this._bindToEvents();
+          
+            if(this.client.eth.coinbase != null ){    
+                this.loadIndexPage();
+            }
+            else {
+                this.loadMetamaskNotLoggedIn();
+            }
+
+            this._listenForAccountChanges();
+        }
+
+        if(this.client == undefined) {
+            this.loadMetamaskNotLoggedIn();
+        }
     }
-    
+
     async addDeposit(amount) {
         let value = Eth.toWei(amount, 'ether');
-        let from = await this.client.coinbase();
 
-        await promisify(a => this.contract.addDeposit({ from: from, value: value}, a));
+        await promisify(a => this.contract.addDeposit({ value: value}, a));
     }
 
     async rquestPayout(depositIndex, timeoutInMonths) {
@@ -34,16 +48,12 @@ class App {
         }
         else
         {
-            let from = await this.client.coinbase();
-
-            await promisify(a => this.contract.rquestPayout(depositIndex, timeoutInMonths, {from : from}, a));
+            await promisify(a => this.contract.rquestPayout(depositIndex, timeoutInMonths, a));
         }
     }
 
     async widthrawMoney(payoutIndex){
-        let from = await this.client.coinbase();
-      
-        await promisify(a => this.contract.widthraw(payoutIndex, {from : from}, a));
+        await promisify(a => this.contract.widthraw(payoutIndex, a));
     }
 
     async loadIndexPage(){
@@ -68,10 +78,10 @@ class App {
            let deposit = await promisify(a => this.contract.getDepositAtIndex(i, a));
            let payout = payouts.find(p => p.depositIndex == i);
            let timeDeposited =  new Date(deposit[1].toNumber() * 1000);
-           let interest = this._calculateInterest(Eth.fromWei(deposit[0].toString(), 'ether'), timeDeposited);
+           let interest = this._calculateInterest(web3.fromWei(deposit[0].toString(), 'ether'), timeDeposited);
 
            deposits.push({
-                amount : Eth.fromWei(deposit[0].toString(), 'ether'),
+                amount : web3.fromWei(deposit[0].toString(), 'ether'),
                 timeDeposited : timeDeposited,
                 index: i,
                 payoutExists: payout != undefined,
@@ -113,6 +123,20 @@ class App {
         });
     }
 
+    loadMetamaskNotLoggedIn(){
+        $.get('./templates/metamask_not_logged_in.html', function (template) {
+            var output = Mustache.render(template);
+            $("#template").html(output);
+        });
+    }
+
+    loadMetamaskNotLoggedIn(){
+        $.get('./templates/metamask_not_found.html', function (template) {
+            var output = Mustache.render(template);
+            $("#template").html(output);
+        });
+    }
+
     _calculateInterest(input, timeDeposited) {
         let diffrence = Math.floor((new Date().getTime() - timeDeposited.getTime()) / (1000 * 3600 * 24 * 30)) 
         let interest = ((input / 100 ) * diffrence);
@@ -124,7 +148,7 @@ class App {
         if (typeof web3 !== 'undefined') {
             console.log('Metamask ON.');
 
-            this.client = new Eth(web3.currentProvider);
+            this.client = web3;
 
             return true;
         }
@@ -142,7 +166,7 @@ class App {
         let addedDeposit = this.contract.AddDeposit();
         addedDeposit.watch(async (e, r) => {
             if(!e){
-                let coinbase = await this.client.coinbase();
+                let coinbase = this.client.eth.coinbase;
                 if(r.args.owner == coinbase){
                     this.loadIndexPage();
                 }
@@ -152,7 +176,7 @@ class App {
         let requestedPayout = this.contract.RequestPayout();
         requestedPayout.watch(async (e, r) => {
             if(!e){
-                let coinbase = await this.client.coinbase();
+                let coinbase = this.client.eth.coinbase;
                 if(r.args.owner == coinbase){
                     this.loadIndexPage();
                 }
@@ -162,18 +186,33 @@ class App {
         let widthraw = this.contract.Widthraw();
         widthraw.watch(async (e, r) => {
             if(!e){
-                let coinbase = await this.client.coinbase();
+                let coinbase = this.client.eth.coinbase;
                 if(r.args.owner == coinbase){
                     this.loadIndexPage();
                 }
             }
         })
     }
+
+    _listenForAccountChanges(){
+        let account = this.client.eth.accounts[0];
+        let self = this;
+        let accountInterval = setInterval(function() {
+            if (self.client.eth.accounts[0] !== account) {
+                account = self.client.eth.accounts[0];
+                if(account != null ){    
+                    self.loadIndexPage();
+                }
+                else {
+                    self.loadMetamaskNotLoggedIn();
+                }
+            }
+        }, 100);
+    }
 }
 
 var app = null;
 window.addEventListener('load', () => {
     app = new App();
-    app.loadIndexPage();
 })
 
