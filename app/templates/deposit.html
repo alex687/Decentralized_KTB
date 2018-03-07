@@ -58,9 +58,9 @@
                     <p class="card-text">Timeout : {{timeout}}</p>                                  
                     <p class="card-text">Payout percentage :{{payoutPercentage}}</p>        
                     
-                    {{^payoutExists}}                                  
+                    {{#canWidthraw}}                                  
                     <a onclick="javascript:app.widthrawMoney({{index}})" class="btn btn-success text-white">Widthraw money</a>                                  
-                    {{/payoutExists}}
+                    {{/canWidthraw}}
                 </div>
                 </div>
             </div>

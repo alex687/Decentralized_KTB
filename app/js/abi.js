@@ -1,56 +1,16 @@
-var abi =  [
+var abi = [
     {
-      "constant": true,
+      "constant": false,
       "inputs": [
         {
-          "name": "",
+          "name": "_target",
           "type": "address"
-        },
-        {
-          "name": "",
-          "type": "uint256"
         }
       ],
-      "name": "userDeposits",
-      "outputs": [
-        {
-          "name": "index",
-          "type": "uint256"
-        },
-        {
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "name": "timeDeposited",
-          "type": "uint256"
-        }
-      ],
+      "name": "upgrade",
+      "outputs": [],
       "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "",
-          "type": "address"
-        },
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "userDepositPayout",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -101,33 +61,12 @@ var abi =  [
     },
     {
       "constant": true,
-      "inputs": [
+      "inputs": [],
+      "name": "target",
+      "outputs": [
         {
           "name": "",
           "type": "address"
-        },
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "userPayouts",
-      "outputs": [
-        {
-          "name": "depositIndex",
-          "type": "uint256"
-        },
-        {
-          "name": "index",
-          "type": "uint256"
-        },
-        {
-          "name": "timeout",
-          "type": "uint256"
-        },
-        {
-          "name": "payoutPercentage",
-          "type": "uint256"
         }
       ],
       "payable": false,
@@ -240,6 +179,23 @@ var abi =  [
       "anonymous": false,
       "inputs": [
         {
+          "indexed": false,
+          "name": "target",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "admin",
+          "type": "address"
+        }
+      ],
+      "name": "EventUpgrade",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
           "indexed": true,
           "name": "previousOwner",
           "type": "address"
@@ -255,12 +211,7 @@ var abi =  [
     },
     {
       "constant": false,
-      "inputs": [
-        {
-          "name": "timeDeposited",
-          "type": "uint256"
-        }
-      ],
+      "inputs": [],
       "name": "addDeposit",
       "outputs": [],
       "payable": true,
@@ -372,6 +323,15 @@ var abi =  [
         }
       ],
       "name": "widthraw",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "doKTB",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",

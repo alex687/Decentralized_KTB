@@ -24,7 +24,7 @@ class App {
         let value = Eth.toWei(amount, 'ether');
         let from = await this.client.coinbase();
 
-        await promisify(a => this.contract.addDeposit(1516568303, { from: from, value: value}, a));
+        await promisify(a => this.contract.addDeposit({ from: from, value: value}, a));
     }
 
     async rquestPayout(depositIndex, timeoutInMonths) {
@@ -133,14 +133,13 @@ class App {
     }
     
     _loadContract() {
-        let contractInstance =  web3.eth.contract(abi).at("0x03fbe06c3688aa6e87311f4a3e73ec9d2288f58d");
+        let contractInstance =  web3.eth.contract(abi).at("0x03fBE06C3688AA6e87311f4a3e73EC9d2288f58D");
 
         this.contract = contractInstance;
     }
 
     async _bindToEvents(){
-        let contract = web3.eth.contract(abi).at("0x03fbe06c3688aa6e87311f4a3e73ec9d2288f58d");
-        let addedDeposit = contract.AddDeposit();
+        let addedDeposit = this.contract.AddDeposit();
         addedDeposit.watch(async (e, r) => {
             if(!e){
                 let coinbase = await this.client.coinbase();
@@ -150,7 +149,7 @@ class App {
             }
         });
 
-        let requestedPayout = contract.RequestPayout();
+        let requestedPayout = this.contract.RequestPayout();
         requestedPayout.watch(async (e, r) => {
             if(!e){
                 let coinbase = await this.client.coinbase();
@@ -160,7 +159,7 @@ class App {
             }
         })
 
-        let widthraw = contract.Widthraw();
+        let widthraw = this.contract.Widthraw();
         widthraw.watch(async (e, r) => {
             if(!e){
                 let coinbase = await this.client.coinbase();
